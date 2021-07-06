@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install -g vsce
+      - run: npm ci
+      - run: npm run build
+      - run: npx conventional-github-releaser -p angular
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.SWISH_TOKEN}}
+      - run: vsce publish -p ${{secrets.VSCE_TOKEN}}
+        env:
+          VSCE_TOKEN: ${{secrets.VSCE_TOKEN}}
