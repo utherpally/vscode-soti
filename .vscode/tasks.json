@@ -9,7 +9,6 @@
       "isBackground": true,
       "problemMatcher": [
         {
-          "base": "$tsc-watch",
           "background": {
             "activeOnStart": true,
             "beginsPattern": "bundles ",

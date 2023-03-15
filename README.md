@@ -1,26 +1,29 @@
-# Swish
+# Yo
 
-Switch segments of text with predefined replacements
+Yolo
 
 ## Usage
 
-This plugin export default binding: `Alt+b`
+### Swish
 
-You can re-binding command: `swish.switch`
+Switch segments of text with predefined replacements
 
-## Configuration Options
+Default binding: `Alt+b`
 
+You can re-binding command: `yo.swish`
+
+Example Configuration:
 ```jsonc
-"useDefaultDefinitions": true,
+"yo.swish.useDefaultDefinitions": true,
 // All languages
-"customDefinitions": [
+"yo.swish.customDefinitions": [
     // [source, replacement, optional flags]
     ["hello", "hi", "b"],  // str.replace(/\bhello\b/g, "hi")
     ["foo", "bar", "i"],  // source will match: Foo, foo, FOO
     ["(\\d+)", "numbers: $1"]  // foo12  => numbers: 12
 ]
 // Per languages
-"languages": {
+"yo.swish.languages": {
     "javascript,typescript": [
         // List of definitions here ...
     ]
@@ -32,14 +35,10 @@ You can re-binding command: `swish.switch`
 * `b`: Word boundaries
 * `i`: Ignore case
 
-**_NOTE_**: The cursor must be inside `source` text and match single line of text
+**_NOTE_**: The cursor must be inside the `source` text and match a single line of text only.
 
-## TODO
+**_Known bugs_**: When you change text from a longer length to a shorter length, the cursor may move to an unexpected positio
 
-* [ ] Add tests
-* [ ] Increment/Decrement numbers
-* [ ] Increment/Decrement date, datetimes
+### Emoji Commit
 
-## Known bugs
-
-When change text with long length to shorter text length will move cursor to unexpected position.
+Generate random emojis for your WIP commits!!
