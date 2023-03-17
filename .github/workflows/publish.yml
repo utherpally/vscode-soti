@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install -g @vscode/vsce
+      - run: npm ci
       - run: vsce publish -p ${{secrets.VSCE_TOKEN}}
         env:
           VSCE_TOKEN: ${{secrets.VSCE_TOKEN}}
