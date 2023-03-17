@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
-import {emojiCommit, swish} from './lib';
+import { color, emojiCommit, swish } from './lib';
 
 let outputChannel: vscode.OutputChannel;
 export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel("Soti");
 
-  swish(context, outputChannel);
+  color(context);
   emojiCommit(context);
+  swish(context, outputChannel);
 }
 
 export function deactivate() {

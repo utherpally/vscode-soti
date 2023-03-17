@@ -1,16 +1,13 @@
 .vscode/**
 .vscode-test/**
-out/test/**
+dist/test/**
 node_modules/**
 src/**
 .gitignore
 .yarnrc
-vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
-**/rollup.config.js
-**/jest.config.js
 .github
 **/*.vsix

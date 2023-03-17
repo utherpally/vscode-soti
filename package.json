@@ -18,7 +18,7 @@
   "homepage": "https://github.com/utherpally/vscode-soti",
   "bugs": "https://github.com/utherpally/vscode-soti/issues",
   "icon": "images/logo.jpg",
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -32,6 +32,22 @@
           "dark": "images/emojiCommit.svg",
           "light": "images/emojiCommit.svg"
         }
+      },
+      {
+        "command": "soti.color.convertToHsl",
+        "title": "Convert Color to hsl/hsla()"
+      },
+      {
+        "command": "soti.color.convertToRgb",
+        "title": "Convert Color to rgb/rgba()"
+      },
+      {
+        "command": "soti.color.convertToHslChannel",
+        "title": "Convert Color to hsl/hsla channel"
+      },
+      {
+        "command": "soti.color.convertToRgbChannel",
+        "title": "Convert Color to rgb/rgba channel"
       }
     ],
     "menus": {
@@ -74,21 +90,24 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run build",
+    "build": "tsup src/extension.ts --external vscode",
+    "watch": "npm run build -- --watch",
     "lint": "eslint src --ext ts",
     "lint:fix": "npm run lint -- --fix",
     "release": "bumpp --tag --commit --push"
   },
   "devDependencies": {
+    "@types/color": "^3.0.3",
     "@types/node": "^16.18.16",
     "@types/vscode": "1.75.0",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "@typescript-eslint/parser": "5.55.0",
     "@vscode/vsce": "^2.18.0",
     "bumpp": "9.0.0",
+    "color": "^4.2.3",
     "eslint": "8.36.0",
+    "tsup": "^6.6.3",
     "typescript": "4.9.5"
   }
 }

@@ -1,5 +1,6 @@
 import type { Range } from "vscode";
 import * as vscode from "vscode";
+import { editSelections } from "../utils";
 
 export const swish = (
   context: vscode.ExtensionContext,
@@ -50,22 +51,22 @@ export const swish = (
       ].some((c) => e.affectsConfiguration(c))
     ) {
       provider.setDefinitions(getDefinitions());
-      outputChannel.appendLine("Definitions reloaded.");
+      outputChannel.appendLine("Swish dfinitions reloaded.");
     }
   });
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand("soti.swish", () => {
-    const editor = vscode.window.activeTextEditor;
-    if (editor) {
-      const getMatch = (selection: vscode.Selection, context: Context) => {
-        return provider.match(context, (def) => {
+    editSelections((document, selection) => {
+      const match = provider.match(
+        {
+          lang: document.languageId,
+        },
+        (def) => {
           if (def.options.wordBoundaries) {
-            const wordRange = editor.document.getWordRangeAtPosition(
-              selection.end
-            );
+            const wordRange = document.getWordRangeAtPosition(selection.end);
             if (wordRange) {
-              const text = editor.document.getText(wordRange);
+              const text = document.getText(wordRange);
               if (def.match(text)) {
                 const result = text.replace(def.regexp, def.value);
                 return new Match(def, wordRange, result);
@@ -74,7 +75,7 @@ export const swish = (
           }
 
           const line = selection.end.line;
-          const textLine = editor.document.lineAt(line);
+          const textLine = document.lineAt(line);
           const reg = def.regexp;
           reg.lastIndex = 0;
           let match;
@@ -86,24 +87,18 @@ export const swish = (
               reg.lastIndex
             );
             if (range.contains(selection)) {
-              const text = editor.document.getText(range);
+              const text = document.getText(range);
               reg.lastIndex = 0;
               return new Match(def, range, text.replace(reg, def.value));
             }
           }
-          return undefined;
-        });
-      };
-      const context = {
-        lang: editor.document.languageId,
-      };
-      editor.selections.forEach((selection) => {
-        const match = getMatch(selection, context);
-        if (match) {
-          editor.edit((e) => e.replace(match.range, match.finalValue));
         }
-      });
-    }
+      );
+
+      if (match) {
+        return { location: match.range, text: match.finalValue };
+      }
+    });
   });
 
   context.subscriptions.push(disposable);
