@@ -17,23 +17,30 @@ export const swish = (
 
   const getDefinitions = () => {
     const config = vscode.workspace.getConfiguration("soti");
-    const defaults = config.get("swish.useDefaultDefinitions")
+    const defaultGlobal = config.get("swish.useDefault")
       ? defaultDefinitions
       : [];
-    const customs = config.get<RawDefinition[]>("swish.customDefinitions", []);
+    const globals = config
+      .get<RawDefinition[]>("swish.global", [])
+      .concat(defaultGlobal)
+      .map(Definition.parse);
 
     const languages: Record<string, Definition[]> = {};
     for (const [langId, definitions] of Object.entries<RawDefinition[]>(
       config.get("swish.languages", {})
     )) {
-      const languageDefinitions = definitions.map(Definition.parse);
       langId.split(",").forEach((lang) => {
-        languages[lang] = (languages[lang] || []).concat(languageDefinitions);
+        if (lang) {
+          languages[lang] = (languages[lang] || []).concat(
+            definitions.map(Definition.parse)
+          );
+        }
       });
     }
 
+    outputChannel.appendLine(JSON.stringify(globals));
     return {
-      default: [...defaults, ...customs].map(Definition.parse),
+      globals,
       languages,
     };
   };
@@ -45,8 +52,8 @@ export const swish = (
   disposable = vscode.workspace.onDidChangeConfiguration((e) => {
     if (
       [
-        "soti.swish.useDefaultDefinitions",
-        "soti.swish.customDefinitions",
+        "soti.swish.useDefault",
+        "soti.swish.global",
         "soti.swish.languages",
       ].some((c) => e.affectsConfiguration(c))
     ) {
@@ -63,12 +70,14 @@ export const swish = (
           lang: document.languageId,
         },
         (def) => {
+          const reg = def.regexp;
+          reg.lastIndex = 0;
           if (def.options.wordBoundaries) {
             const wordRange = document.getWordRangeAtPosition(selection.end);
             if (wordRange) {
               const text = document.getText(wordRange);
               if (def.match(text)) {
-                const result = text.replace(def.regexp, def.value);
+                const result = text.replace(reg, def.value);
                 return new Match(def, wordRange, result);
               }
             }
@@ -76,8 +85,6 @@ export const swish = (
 
           const line = selection.end.line;
           const textLine = document.lineAt(line);
-          const reg = def.regexp;
-          reg.lastIndex = 0;
           let match;
           while ((match = reg.exec(textLine.text))) {
             const range = new vscode.Range(
@@ -154,15 +161,11 @@ class Definition {
 }
 
 class Match {
-  private _definition: Definition;
-  private _range: Range;
-  private _finalValue: string;
-
-  constructor(definition: Definition, range: Range, finalValue: string) {
-    this._definition = definition;
-    this._range = range;
-    this._finalValue = finalValue;
-  }
+  constructor(
+    private definition: Definition,
+    public range: Range,
+    public finalValue: string
+  ) {}
 
   isBetter(other: Match): boolean {
     if (this.isEmpty) {
@@ -176,46 +179,37 @@ class Match {
   }
 
   get isEmpty(): boolean {
-    return this._range.isEmpty;
-  }
-
-  get range(): Range {
-    return this._range;
-  }
-
-  get finalValue() {
-    return this._finalValue;
+    return this.range.isEmpty;
   }
 }
 
 type Context = { lang?: string };
 
-type SetOfDefinitions = {
-  default: Definition[];
+interface SetOfDefinitions {
+  globals: Definition[];
   languages: Record<string, Definition[]>;
 };
 
 class MappingProvider {
-  private _definitions: Definition[] = [];
-  private _languages: Record<string, Definition[]> = {};
+  private globals: Definition[] = [];
+  private languages: Record<string, Definition[]> = {};
 
   constructor(definitions: SetOfDefinitions) {
     this.setDefinitions(definitions);
   }
 
-  setDefinitions(definitions: SetOfDefinitions) {
-    this._definitions = definitions.default;
-    this._languages = definitions.languages;
+  public setDefinitions(definitions: SetOfDefinitions) {
+    Object.assign(this, definitions);
   }
 
-  match(context: Context, handle: Matcher): Match | undefined {
-    let minMatch: Match | undefined = undefined;
-    const langDefinitions = context.lang
-      ? this._languages[context.lang] || []
-      : [];
-    const definitions = [...this._definitions, ...langDefinitions];
-    for (let index = 0; index < definitions.length; index++) {
-      const definition = definitions[index];
+  public match(context: Context, handle: Matcher) {
+    const minMatch = this._match(this.globals, handle);
+    return context.lang
+      ? this._match(this.languages[context.lang] ?? [], handle, minMatch)
+      : minMatch;
+  }
+  private _match(definitions: Definition[], handle: Matcher, minMatch?: Match) {
+    for (const definition of definitions) {
       const match = handle(definition);
       if (match) {
         if (!minMatch) {

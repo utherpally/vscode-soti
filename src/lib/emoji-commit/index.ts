@@ -9,7 +9,9 @@ export function emojiCommit(context: vscode.ExtensionContext) {
       const git = getGitExtension();
 
       if (!git) {
-        vscode.window.showErrorMessage("Unable to load Git Extension");
+        vscode.window.showErrorMessage(
+          "Soti > Emoji Commit: Unable to load Git Extension"
+        );
         return;
       }
 

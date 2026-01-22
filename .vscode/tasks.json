@@ -7,15 +7,7 @@
       "type": "npm",
       "script": "watch",
       "isBackground": true,
-      "problemMatcher": [
-        {
-          "background": {
-            "activeOnStart": true,
-            "beginsPattern": "bundles ",
-            "endsPattern": "waiting for changes..."
-          }
-        }
-      ],
+      "problemMatcher":"$tsc-watch",
       "presentation": {
         "reveal": "never"
       },
