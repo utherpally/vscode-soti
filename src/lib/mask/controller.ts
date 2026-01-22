@@ -108,9 +108,21 @@ export default class MaskController {
 		return this.editor;
 	}
 
-	public setEditor(editor?: vscode.TextEditor) {
-		this.clear();
+	public setEditor(editor?: vscode.TextEditor, clearDecorations = true) {
+		if (clearDecorations) {
+			this.clear();
+		}
 		this.editor = editor;
+	}
+
+	/**
+	 * Check if the current editor is still valid (exists and is visible)
+	 */
+	public isEditorValid(): boolean {
+		if (!this.editor) {
+			return false;
+		}
+		return vscode.window.visibleTextEditors.includes(this.editor);
 	}
 
 	/**

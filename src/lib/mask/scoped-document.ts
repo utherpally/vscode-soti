@@ -50,8 +50,11 @@ export default class ScopedDocument {
 	 * (note: make sure you tokenize the document before calling this method)
 	 */
 	public getTokens(lineNumber: number) {
+		if (!this.grammar || !this.document) {
+			return undefined;
+		}
 		const prevState = this.grammarState.get(lineNumber - 1) || null;
-		return this.grammar?.tokenizeLine(this.document?.lineAt(lineNumber).text || "", prevState).tokens;
+		return this.grammar.tokenizeLine(this.document.lineAt(lineNumber).text || "", prevState).tokens;
 	}
 
 	/**

@@ -2,8 +2,7 @@ import * as vscode from "vscode";
 import * as vsctm from "vscode-textmate";
 import * as fs from "fs";
 import * as path from "path";
-import MaskController from "./controller";
-import ScopedDocument from "./scoped-document";
+import DocumentMaskManager from "./document-manager";
 import * as oniguruma from "vscode-oniguruma"
 
 /**
@@ -74,134 +73,100 @@ const getLanguageScopeName = (languageId?: string) => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
-	// A map from language id => mask
-	const maskMap = new Map<string, any>();
-	const maskController = new MaskController(vscode.window.activeTextEditor);
-	const scopedDocument = new ScopedDocument(maskController.getEditor()?.document);
 	let configuration = vscode.workspace.getConfiguration();
-	let timeout: NodeJS.Timeout;
-	let languageScopeName: string = "";
+
+	// Create the document mask manager
+	const manager = new DocumentMaskManager(registry, getLanguageScopeName);
+
+	// Helper to get user masks from configuration
+	const getUserMasks = () => configuration.get("soti.masks") as any;
 
 	/**
-	 * Apply the user's masks to the currently active document
+	 * Initialize masks for all currently visible editors
 	 */
-	const updateMasks = async () => {
-		try {
-			const document = scopedDocument.getDocument();
-			const userMasks = (configuration.get("soti.masks") as any);
-
-			if (document) {
-				for (let mask of userMasks) {
-					if (vscode.languages.match(mask.language, document) > 0) {
-						maskMap.set(mask.language, mask.pattern);
-						for (const pattern of mask.patterns) {
-							const regex = new RegExp(pattern.pattern, pattern.ignoreCase ? "ig" : "g");
-							maskController.apply(regex, {
-								text: pattern.replace,
-								scope: pattern.scope,
-								hover: pattern.hover,
-								backgroundColor: pattern.style?.backgroundColor,
-								border: pattern.style?.border,
-								borderColor: pattern.style?.borderColor,
-								color: pattern.style?.color,
-								fontStyle: pattern.style?.fontStyle,
-								fontWeight: pattern.style?.fontWeight,
-								css: pattern.style?.css
-							});
-						}
-					}
-				}
-			}
-		} catch (err) {
-			console.error(err);
+	const initializeVisibleEditors = async () => {
+		const visibleEditors = vscode.window.visibleTextEditors;
+		for (const editor of visibleEditors) {
+			await manager.updateMasks(editor, getUserMasks());
 		}
 	};
 
-	/**
-	 * Wait a little before updating the masks
-	 * To avoid slowing the extension down
-	 */
-	const debounceUpdateMasks = () => {
-		if (timeout) {
-			clearTimeout(timeout);
-		}
-		timeout = setTimeout(updateMasks, 50);
-	};
+	// Initialize on activation
+	initializeVisibleEditors();
 
 	/**
-	 * Setup to load the textmate grammar for the document
+	 * Update masks when visible editors change
+	 * (new editors opened, editors closed, split view changes)
 	 */
-	languageScopeName = getLanguageScopeName(maskController.getEditor()?.document?.languageId) || "";
-	scopedDocument.setDocument(maskController.getEditor()?.document);
-	maskController.setScopedDocument(scopedDocument);
-
-	registry.loadGrammar(languageScopeName)
-	.then(grammar => {
-		scopedDocument.setGrammar(grammar);
-		scopedDocument.tokenize();
-		debounceUpdateMasks();
-	})
-	.catch(err => {
-		console.log(err);
-		scopedDocument.clearGrammar();
-		debounceUpdateMasks();
-	});
-
-	/**
-	 * Update masks when the text editor changes
-	 */
-	vscode.window.onDidChangeActiveTextEditor(async editor => {
-		maskController.setEditor(editor);
-		scopedDocument.setDocument(editor?.document);
-		languageScopeName = getLanguageScopeName(maskController.getEditor()?.document.languageId) || "";
-		// Tokenize the new document, if possible
-		if (editor && languageScopeName) {
-			scopedDocument.setGrammar(await registry.loadGrammar(languageScopeName));
-			scopedDocument.tokenize();
-		}
-		debounceUpdateMasks();
-	}, null, context.subscriptions);
-
-	/**
-	 * Update masks when the text editor is saved
-	 * (because the file could have just obtained a grammar,
-	 * or obtained a different one)
-	 */
-	vscode.workspace.onDidSaveTextDocument(async _ => {
-		// Get the language scope name for the saved document and retokenize it
-		languageScopeName = getLanguageScopeName(maskController.getEditor()?.document.languageId) || "";
-		if (maskController.getEditor() && languageScopeName) {
-			scopedDocument.setGrammar(await registry.loadGrammar(languageScopeName));
-			scopedDocument.tokenize();
+	vscode.window.onDidChangeVisibleTextEditors(async editors => {
+		// Update all visible editors
+		for (const editor of editors) {
+			manager.debounceUpdateMasks(editor, getUserMasks());
 		}
 	}, null, context.subscriptions);
 
 	/**
-	 * Update masks when the document changes
+	 * Clean up when a document is closed
+	 */
+	vscode.workspace.onDidCloseTextDocument(document => {
+		manager.removeInstance(document.uri.toString());
+	}, null, context.subscriptions);
+
+	/**
+	 * Update masks when a document is saved
+	 * (because the file could have just obtained a grammar, or obtained a different one)
+	 */
+	vscode.workspace.onDidSaveTextDocument(async document => {
+		// Find the editor(s) showing this document
+		const editors = vscode.window.visibleTextEditors.filter(
+			editor => editor.document.uri.toString() === document.uri.toString()
+		);
+
+		for (const editor of editors) {
+			await manager.reloadGrammar(editor);
+			manager.debounceUpdateMasks(editor, getUserMasks());
+		}
+	}, null, context.subscriptions);
+
+	/**
+	 * Update masks when document content changes
+	 */
+	vscode.workspace.onDidChangeTextDocument(async event => {
+		// Find the editor(s) showing this document
+		const editors = vscode.window.visibleTextEditors.filter(
+			editor => editor.document.uri.toString() === event.document.uri.toString()
+		);
+
+		for (const editor of editors) {
+			// Retokenize if the document is dirty
+			manager.retokenizeIfDirty(editor);
+			// Update masks with longer debounce to reduce flickering
+			manager.debounceUpdateMasks(editor, getUserMasks(), 200);
+		}
+	}, null, context.subscriptions);
+
+	/**
+	 * Update masks when the text editor selection changes
+	 * (for cursor-based mask hiding)
 	 */
 	vscode.window.onDidChangeTextEditorSelection(async event => {
-		// If the document changed, retokenize it
-		if (languageScopeName && scopedDocument.getDocument()?.isDirty) {
-			scopedDocument.tokenize();
-		}
-
-		if (event.textEditor === maskController.getEditor()) {
-			debounceUpdateMasks();
-		}
+		// Only update for cursor movement, not text changes
+		// Use shorter debounce for responsive cursor-based hiding
+		manager.debounceUpdateMasks(event.textEditor, getUserMasks(), 50);
 	}, null, context.subscriptions);
 
 	/**
-	 * Update masks when settings are updated
+	 * Update all visible editors when configuration changes
 	 */
 	vscode.workspace.onDidChangeConfiguration(async event => {
 		if (event.affectsConfiguration("soti.masks")) {
-			maskController.clear();
 			configuration = vscode.workspace.getConfiguration();
-			languageScopeName = getLanguageScopeName(maskController.getEditor()?.document.languageId) || "";
-			if (languageScopeName) {
-				scopedDocument.tokenize();
-			}
-			debounceUpdateMasks();
+			await manager.updateAllVisibleMasks(getUserMasks());
 		}
 	}, null, context.subscriptions);
+
+	// Clean up on deactivation
+	context.subscriptions.push({
+		dispose: () => manager.dispose()
+	});
 }
