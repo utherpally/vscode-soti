@@ -1,7 +1,7 @@
 {
 	"name": "soti",
 	"displayName": "Soti",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"description": "Switch segments of text with predefined replacements",
 	"license": "MIT",
 	"publisher": "langbamit",
