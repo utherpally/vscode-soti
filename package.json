@@ -1,7 +1,7 @@
 {
 	"name": "soti",
 	"displayName": "Soti",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "Switch segments of text with predefined replacements",
 	"license": "MIT",
 	"publisher": "langbamit",
@@ -228,7 +228,7 @@
 		]
 	},
 	"activationEvents": [
-		"onLanguage:typescript"
+		"onStartupFinished"
 	],
 	"scripts": {
 		"vscode:prepublish": "npm run build",
