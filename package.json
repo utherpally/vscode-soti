@@ -203,12 +203,16 @@
 					},
 					"default": [
 						{
-							"language": "typescript",
+							"selector": "typescript",
 							"patterns": [
 								{
 									"pattern": "(?<=[\\b\\s])===(?=[\\b\\s])",
 									"replace": "≡"
-								}
+								},
+                {
+                  "pattern": "­",
+                  "replace": "u"
+                }
 							]
 						}
 					]

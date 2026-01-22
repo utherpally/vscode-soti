@@ -94,6 +94,8 @@ export default class MaskController {
 
 	private editor: vscode.TextEditor | undefined;
 
+	private activePatterns: Set<string> = new Set();
+
 	constructor(editor?: vscode.TextEditor, scopedDocument?: ScopedDocument) {
 		this.editor = editor;
 		this.scopedDocument = scopedDocument || null;
@@ -138,6 +140,34 @@ export default class MaskController {
 			}
 		}
 		this.decorationTypeMap.clear();
+		this.activePatterns.clear();
+	}
+
+	/**
+	 * Reset the active patterns set without clearing decorations.
+	 * Call this before starting a new update cycle.
+	 */
+	public resetActivePatterns() {
+		this.activePatterns.clear();
+	}
+
+	/**
+	 * Finalize decorations after all patterns have been applied.
+	 * Clears decorations for patterns that were not applied during the update cycle.
+	 */
+	public finalizeDecorations() {
+		// Clear decorations that are no longer active
+		if (this.editor) {
+			for (const key of this.decorationTypeMap.keys()) {
+				if (!this.activePatterns.has(key)) {
+					const decorationType = this.decorationTypeMap.get(key);
+					if (decorationType) {
+						this.editor.setDecorations(decorationType, []);
+					}
+					this.decorationTypeMap.delete(key);
+				}
+			}
+		}
 	}
 
 	/**
@@ -318,6 +348,12 @@ export default class MaskController {
 			}
 		}
 
+		// Track active patterns
+		this.activePatterns.add(pattern.source);
+		for (const decorationKey of matchReplaceKeys.values()) {
+			this.activePatterns.add(decorationKey);
+		}
+
 		for (const decorationKey of matchReplaceKeys.values()) {
 			const decorationType = this.decorationTypeMap.get(decorationKey);
 			if (decorationType) {
@@ -328,18 +364,6 @@ export default class MaskController {
 		const decorationType = this.decorationTypeMap.get(pattern.source);
 		if (decorationType) {
 			this.editor.setDecorations(decorationType, decorationOptions.get(pattern.source) || []);
-		}
-
-		// Clear all masks which were not matched but which are
-		// still cached
-		for (const key of this.decorationTypeMap.keys()) {
-			if (key !== pattern.source && !(matchReplaceKeys.has(key))) {
-				const decorationType = this.decorationTypeMap.get(key);
-				if (decorationType) {
-					this.editor.setDecorations(decorationType, []);
-				}
-				this.decorationTypeMap.delete(key);
-			}
 		}
 	}
 }

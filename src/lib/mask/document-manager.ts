@@ -99,14 +99,17 @@ export default class DocumentMaskManager {
 				return;
 			}
 
-			// Only clear decorations if explicitly requested (e.g., config changes)
+			// Clear decorations and reset active patterns if explicitly requested (e.g., config changes)
+			// Otherwise just reset active patterns to track the new update cycle
 			if (clearFirst) {
 				instance.controller.clear();
+			} else {
+				instance.controller.resetActivePatterns();
 			}
 
 			// Apply masks that match this document's language
 			for (const mask of userMasks) {
-				if (vscode.languages.match(mask.language, document) > 0) {
+				if (vscode.languages.match(mask.selector, document) > 0) {
 					for (const pattern of mask.patterns) {
 						const regex = new RegExp(pattern.pattern, pattern.ignoreCase ? "ig" : "g");
 						instance.controller.apply(regex, {
@@ -124,6 +127,9 @@ export default class DocumentMaskManager {
 					}
 				}
 			}
+
+			// Finalize decorations and clean up unused patterns
+			instance.controller.finalizeDecorations();
 		} catch (err) {
 			console.error("Error updating masks:", err);
 		}

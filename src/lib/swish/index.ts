@@ -38,7 +38,6 @@ export const swish = (
       });
     }
 
-    outputChannel.appendLine(JSON.stringify(globals));
     return {
       globals,
       languages,
@@ -58,7 +57,7 @@ export const swish = (
       ].some((c) => e.affectsConfiguration(c))
     ) {
       provider.setDefinitions(getDefinitions());
-      outputChannel.appendLine("Swish dfinitions reloaded.");
+      outputChannel.appendLine("Soti: Swish dfinitions reloaded.");
     }
   });
   context.subscriptions.push(disposable);

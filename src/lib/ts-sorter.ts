@@ -39,10 +39,10 @@ class TsSorter implements vscode.CodeActionProvider {
     token: vscode.CancellationToken
   ): vscode.ProviderResult<(vscode.CodeAction | vscode.Command)[]> {
     if (!this.isAtStartOfInterface(document, range)) {
-      this.outputChannel.appendLine("Stop");
+      // this.outputChannel.appendLine("Stop");
       return;
     }
-    this.outputChannel.appendLine("Start");
+    // this.outputChannel.appendLine("Start");
     const codeAction = new vscode.CodeAction(
       `Sort this interface`,
       vscode.CodeActionKind.Empty
@@ -62,7 +62,7 @@ class TsSorter implements vscode.CodeActionProvider {
     const start = range.start;
     const line = document.lineAt(start.line);
 
-    this.outputChannel.appendLine(line.text);
+    // this.outputChannel.appendLine(line.text);
     if (!interfaceRegex.test(line.text)) {
       return false;
     }
