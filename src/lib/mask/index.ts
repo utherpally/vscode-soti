@@ -15,7 +15,7 @@ function readFile(path: string): Promise<string> {
     })
 }
 
-const wasmBin = fs.readFileSync(path.join(__dirname, '../../node_modules/vscode-oniguruma/release/onig.wasm')).buffer as ArrayBuffer;
+const wasmBin = fs.readFileSync(path.join(__dirname, 'onig.wasm')).buffer as ArrayBuffer;
 const vscodeOnigurumaLib = oniguruma.loadWASM(wasmBin).then(() => {
     return {
         createOnigScanner(patterns: string[]) { return new oniguruma.OnigScanner(patterns); },

@@ -203,7 +203,7 @@
 					},
 					"default": [
 						{
-							"selector": "typescript",
+							"selector": "*",
 							"patterns": [
 								{
 									"pattern": "(?<=[\\b\\s])===(?=[\\b\\s])",
@@ -211,7 +211,7 @@
 								},
 								{
 									"pattern": "­",
-									"replace": "u"
+									"replace": "ư"
 								}
 							]
 						}
@@ -232,9 +232,8 @@
 	],
 	"scripts": {
 		"vscode:prepublish": "npm run build",
-		"build": "tsc && npm run copy-wasm",
-		"copy-wasm": "mkdir -p out/node_modules/vscode-oniguruma/release && cp node_modules/vscode-oniguruma/release/onig.wasm out/node_modules/vscode-oniguruma/release/",
-		"watch": "tsc --watch",
+		"build": "node esbuild.js --production",
+		"watch": "node esbuild.js --watch",
 		"lint": "eslint src --ext ts",
 		"lint:fix": "npm run lint -- --fix",
 		"release": "bumpp --tag --commit --push"
@@ -247,11 +246,12 @@
 		"@typescript-eslint/parser": "5.55.0",
 		"@vscode/vsce": "^3.7.1",
 		"bumpp": "9.0.0",
-		"color": "^4.2.3",
+		"esbuild": "^0.27.2",
 		"eslint": "8.36.0",
 		"typescript": "5.9.2"
 	},
 	"dependencies": {
+		"color": "^4.2.3",
 		"vscode-oniguruma": "^2.0.1",
 		"vscode-textmate": "^9.3.1"
 	}

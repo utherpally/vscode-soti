@@ -11,3 +11,9 @@ src/**
 **/*.ts
 .github
 **/*.vsix
+esbuild.js
+.eslintrc.js
+.prettierrc
+.editorconfig
+CLAUDE.md
+!out/onig.wasm

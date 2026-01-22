@@ -13,10 +13,10 @@ Soti is a VS Code extension that provides multiple text manipulation and visuali
 ## Development Commands
 
 ```bash
-# Build the extension (compiles TypeScript and copies WASM files)
+# Build the extension (bundles with esbuild and copies WASM files)
 npm run build
 
-# Watch mode for development
+# Watch mode for development (auto-rebuilds on file changes)
 npm run watch
 
 # Lint the code
@@ -83,13 +83,15 @@ src/
 
 ### Key Implementation Details
 
-1. **WASM Dependency**: The mask feature requires `onig.wasm` from `vscode-oniguruma`. The build script copies this to `out/node_modules/vscode-oniguruma/release/`.
+1. **Build System**: The extension uses esbuild (`esbuild.js`) to bundle all TypeScript code and dependencies into a single optimized `out/extension.js` file. This ensures all npm dependencies (like the `color` package) are included in the distribution.
 
-2. **Shared Utilities** (`src/lib/utils.ts`): Contains `editSelections()` helper that applies edits to all current selections.
+2. **WASM Dependency**: The mask feature requires `onig.wasm` from `vscode-oniguruma`. The esbuild plugin automatically copies this to `out/node_modules/vscode-oniguruma/release/` during the build process.
 
-3. **Configuration**: All features use the `soti.*` configuration namespace. Settings are defined in `package.json` under `contributes.configuration`.
+3. **Shared Utilities** (`src/lib/utils.ts`): Contains `editSelections()` helper that applies edits to all current selections.
 
-4. **Commands**: Commands follow the pattern `soti.<feature>.<action>`. All are registered in `package.json` under `contributes.commands`.
+4. **Configuration**: All features use the `soti.*` configuration namespace. Settings are defined in `package.json` under `contributes.configuration`.
+
+5. **Commands**: Commands follow the pattern `soti.<feature>.<action>`. All are registered in `package.json` under `contributes.commands`.
 
 ## Debugging
 
