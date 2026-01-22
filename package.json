@@ -1,7 +1,7 @@
 {
 	"name": "soti",
 	"displayName": "Soti",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Switch segments of text with predefined replacements",
 	"license": "MIT",
 	"publisher": "langbamit",
@@ -209,10 +209,10 @@
 									"pattern": "(?<=[\\b\\s])===(?=[\\b\\s])",
 									"replace": "≡"
 								},
-                {
-                  "pattern": "­",
-                  "replace": "u"
-                }
+								{
+									"pattern": "­",
+									"replace": "u"
+								}
 							]
 						}
 					]
