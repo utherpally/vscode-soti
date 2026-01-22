@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { color, emojiCommit, swish, tsSorter, masks } from "./lib";
+import { color, emojiCommit, swish, masks } from "./lib";
 
 let outputChannel: vscode.OutputChannel;
 export function activate(context: vscode.ExtensionContext) {
@@ -8,7 +8,6 @@ export function activate(context: vscode.ExtensionContext) {
   color(context);
   emojiCommit(context);
   swish(context, outputChannel);
-  tsSorter(context, outputChannel);
   masks(context);
 }
 

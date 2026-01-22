@@ -8,7 +8,6 @@ Soti is a VS Code extension that provides multiple text manipulation and visuali
 - **Swish**: Text replacement with predefined patterns
 - **Emoji Commit**: Random emoji generator for Git commits
 - **Color Converter**: Convert colors between different formats (RGB, HSL, channels)
-- **TypeScript Sorter**: Sort TypeScript interface properties
 - **Masks**: Visual text replacement using TextMate grammars
 
 ## Development Commands
@@ -43,7 +42,6 @@ src/
 │   ├── swish/               # Text replacement engine
 │   ├── emoji-commit/        # Git commit emoji feature
 │   ├── color/               # Color conversion utilities
-│   ├── ts-sorter.ts         # TypeScript interface sorter
 │   ├── mask/                # TextMate-based text masking
 │   │   ├── index.ts         # Main mask activation
 │   │   ├── controller.ts    # Manages decorations
@@ -75,11 +73,6 @@ src/
 - Uses the `color` npm package for parsing and conversion
 - Converts selected color text to: HSL, RGB, or channel formats
 - Operates on current selection using `editSelections` utility
-
-**TypeScript Sorter** (`src/lib/ts-sorter.ts`):
-- Uses `ts-morph` to parse and manipulate TypeScript AST
-- Provides code actions when cursor is on an interface declaration
-- Sorts properties alphabetically, with optional properties grouped separately
 
 **Masks** (`src/lib/mask/index.ts`):
 - Uses `vscode-textmate` and `vscode-oniguruma` for TextMate grammar support

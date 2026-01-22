@@ -64,12 +64,6 @@ Convert colors between different formats with ease.
 
 Select a color value in your editor and run one of the conversion commands from the Command Palette.
 
-### TypeScript Sorter
-
-Sort TypeScript interface properties alphabetically.
-
-When your cursor is on an interface declaration, you can use the code action menu to sort the properties. Optional properties are grouped separately.
-
 ### Masks
 
 Visual text replacement using TextMate grammars. Replace code patterns with custom symbols while keeping the actual code unchanged.

@@ -249,7 +249,6 @@
 		"bumpp": "9.0.0",
 		"color": "^4.2.3",
 		"eslint": "8.36.0",
-		"ts-morph": "^18.0.0",
 		"typescript": "5.9.2"
 	},
 	"dependencies": {
