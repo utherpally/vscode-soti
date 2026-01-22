@@ -1,85 +1,85 @@
 {
-  "name": "soti",
-  "displayName": "Soti",
-  "version": "0.1.3",
-  "description": "Switch segments of text with predefined replacements",
-  "license": "MIT",
-  "publisher": "langbamit",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/utherpally/vscode-soti.git"
-  },
-  "engines": {
-    "vscode": "^1.75.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "homepage": "https://github.com/utherpally/vscode-soti",
-  "bugs": "https://github.com/utherpally/vscode-soti/issues",
-  "icon": "images/logo.jpg",
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "soti.swish",
-        "title": "Swish: Swap text with predefined replacements"
-      },
-      {
-        "command": "soti.emojiCommit",
-        "title": "Emoji Commit 🦄",
-        "icon": {
-          "dark": "images/emojiCommit.svg",
-          "light": "images/emojiCommit.svg"
-        }
-      },
-      {
-        "command": "soti.color.convertToHsl",
-        "title": "Convert Color to hsl/hsla()"
-      },
-      {
-        "command": "soti.color.convertToRgb",
-        "title": "Convert Color to rgb/rgba()"
-      },
-      {
-        "command": "soti.color.convertToHslChannel",
-        "title": "Convert Color to hsl/hsla channel"
-      },
-      {
-        "command": "soti.color.convertToRgbChannel",
-        "title": "Convert Color to rgb/rgba channel"
-      }
-    ],
-    "menus": {
-      "scm/title": [
-        {
-          "when": "scmProvider == git",
-          "command": "soti.emojiCommit",
-          "group": "navigation"
-        }
-      ]
-    },
-    "configuration": {
-      "title": "Soti",
-      "properties": {
-        "soti.swish.global": {
-          "type": "array",
-          "default": [],
-          "description": "Create global definitions"
-        },
-        "soti.swish.languages": {
-          "type": "object",
-          "default": {
-            "javascript": []
-          },
-          "description": "Create custom definitions per language"
-        },
-        "soti.swish.useDefault": {
-          "type": "boolean",
-          "default": true,
-          "description": "Use default global definitions"
-        },
-        "soti.masks": {
+	"name": "soti",
+	"displayName": "Soti",
+	"version": "0.1.4-beta.0",
+	"description": "Switch segments of text with predefined replacements",
+	"license": "MIT",
+	"publisher": "langbamit",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/utherpally/vscode-soti.git"
+	},
+	"engines": {
+		"vscode": "^1.75.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"homepage": "https://github.com/utherpally/vscode-soti",
+	"bugs": "https://github.com/utherpally/vscode-soti/issues",
+	"icon": "images/logo.jpg",
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "soti.swish",
+				"title": "Swish: Swap text with predefined replacements"
+			},
+			{
+				"command": "soti.emojiCommit",
+				"title": "Emoji Commit 🦄",
+				"icon": {
+					"dark": "images/emojiCommit.svg",
+					"light": "images/emojiCommit.svg"
+				}
+			},
+			{
+				"command": "soti.color.convertToHsl",
+				"title": "Convert Color to hsl/hsla()"
+			},
+			{
+				"command": "soti.color.convertToRgb",
+				"title": "Convert Color to rgb/rgba()"
+			},
+			{
+				"command": "soti.color.convertToHslChannel",
+				"title": "Convert Color to hsl/hsla channel"
+			},
+			{
+				"command": "soti.color.convertToRgbChannel",
+				"title": "Convert Color to rgb/rgba channel"
+			}
+		],
+		"menus": {
+			"scm/title": [
+				{
+					"when": "scmProvider == git",
+					"command": "soti.emojiCommit",
+					"group": "navigation"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Soti",
+			"properties": {
+				"soti.swish.global": {
+					"type": "array",
+					"default": [],
+					"description": "Create global definitions"
+				},
+				"soti.swish.languages": {
+					"type": "object",
+					"default": {
+						"javascript": []
+					},
+					"description": "Create custom definitions per language"
+				},
+				"soti.swish.useDefault": {
+					"type": "boolean",
+					"default": true,
+					"description": "Use default global definitions"
+				},
+				"soti.masks": {
 					"type": "array",
 					"description": "An array of language masks",
 					"properties": {
@@ -213,43 +213,43 @@
 						}
 					]
 				}
-      }
-    },
-    "keybindings": [
-      {
-        "command": "soti.swish",
-        "key": "alt+b",
-        "when": "editorTextFocus"
-      }
-    ]
-  },
-  "activationEvents": [
-    "onLanguage:typescript"
-  ],
-  "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "tsc && npm run copy-wasm",
-    "copy-wasm": "mkdir -p out/node_modules/vscode-oniguruma/release && cp node_modules/vscode-oniguruma/release/onig.wasm out/node_modules/vscode-oniguruma/release/",
-    "watch": "tsc --watch",
-    "lint": "eslint src --ext ts",
-    "lint:fix": "npm run lint -- --fix",
-    "release": "bumpp --tag --commit --push"
-  },
-  "devDependencies": {
-    "@types/color": "^3.0.3",
-    "@types/node": "^16.18.16",
-    "@types/vscode": "1.75.0",
-    "@typescript-eslint/eslint-plugin": "5.55.0",
-    "@typescript-eslint/parser": "5.55.0",
-    "@vscode/vsce": "^2.18.0",
-    "bumpp": "9.0.0",
-    "color": "^4.2.3",
-    "eslint": "8.36.0",
-    "ts-morph": "^18.0.0",
-    "typescript": "5.9.2"
-  },
-  "dependencies": {
-    "vscode-oniguruma": "^2.0.1",
-    "vscode-textmate": "^9.3.1"
-  }
+			}
+		},
+		"keybindings": [
+			{
+				"command": "soti.swish",
+				"key": "alt+b",
+				"when": "editorTextFocus"
+			}
+		]
+	},
+	"activationEvents": [
+		"onLanguage:typescript"
+	],
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"build": "tsc && npm run copy-wasm",
+		"copy-wasm": "mkdir -p out/node_modules/vscode-oniguruma/release && cp node_modules/vscode-oniguruma/release/onig.wasm out/node_modules/vscode-oniguruma/release/",
+		"watch": "tsc --watch",
+		"lint": "eslint src --ext ts",
+		"lint:fix": "npm run lint -- --fix",
+		"release": "bumpp --tag --commit --push"
+	},
+	"devDependencies": {
+		"@types/color": "^3.0.3",
+		"@types/node": "^16.18.16",
+		"@types/vscode": "1.75.0",
+		"@typescript-eslint/eslint-plugin": "5.55.0",
+		"@typescript-eslint/parser": "5.55.0",
+		"@vscode/vsce": "^3.7.1",
+		"bumpp": "9.0.0",
+		"color": "^4.2.3",
+		"eslint": "8.36.0",
+		"ts-morph": "^18.0.0",
+		"typescript": "5.9.2"
+	},
+	"dependencies": {
+		"vscode-oniguruma": "^2.0.1",
+		"vscode-textmate": "^9.3.1"
+	}
 }
